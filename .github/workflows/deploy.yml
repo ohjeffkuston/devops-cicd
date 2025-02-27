@@ -1,0 +1,33 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build and Push Docker Image
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t ohjeffkuston/node-app:latest .
+          docker push ohjeffkuston/node-app:latest
+
+      - name: Deploy to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          EC2_IP: ${{ secrets.EC2_IP }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+        run: |
+          echo "$PRIVATE_KEY" | base64 -d > key.pem
+          chmod 400 key.pem
+          ssh -o StrictHostKeyChecking=no -i key.pem $SSH_USERNAME@$EC2_IP << 'EOF'
+            docker pull <your-dockerhub-username>/node-app:latest
+            docker stop node-app || true
+            docker rm node-app || true
+            docker run -d --name node-app -p 3000:3000 <your-dockerhub-username>/node-app:latest
+          EOF
+          rm key.pem
