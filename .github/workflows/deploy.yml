@@ -25,9 +25,9 @@ jobs:
           echo "$PRIVATE_KEY" | base64 -d > key.pem
           chmod 400 key.pem
           ssh -o StrictHostKeyChecking=no -i key.pem $SSH_USERNAME@$EC2_IP << 'EOF'
-            docker pull <your-dockerhub-username>/node-app:latest
+            docker pull ohjeffkuston/node-app:latest
             docker stop node-app || true
             docker rm node-app || true
-            docker run -d --name node-app -p 3000:3000 <your-dockerhub-username>/node-app:latest
+            docker run -d --name node-app -p 3000:3000 ohjeffkuston/node-app:latest
           EOF
           rm key.pem
