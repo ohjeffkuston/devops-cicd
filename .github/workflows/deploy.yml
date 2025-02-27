@@ -13,8 +13,8 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t <your-dockerhub-username>/node-app:latest .
-          docker push <your-dockerhub-username>/node-app:latest
+          docker build -t ohjeffkuston/node-app:latest .
+          docker push ohjeffkuston/node-app:latest
 
       - name: Deploy to EC2
         env:
